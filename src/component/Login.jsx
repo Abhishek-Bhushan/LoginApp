@@ -8,13 +8,19 @@ import 'react-toastify/dist/ReactToastify.css';
 function Login() {
   let navigate = useNavigate();
   
+    const[name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [nameError, setNameError] = useState('');
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
-  const [confirmPasswordError, setConfirmPasswordError] = useState('');
-  const [isRegistering, setIsRegistering] = useState(false); // Track if the user is in registration mode
+    const [confirmPasswordError, setConfirmPasswordError] = useState('');
+    const [isRegistering, setIsRegistering] = useState(false); // Track if the user is in registration mode
+
+    const handleNameChange = (e) => {
+      setName(e.target.value);
+    }
 
     const handleEmailChange = (e) => {
         setEmail(e.target.value);
@@ -64,7 +70,7 @@ function Login() {
           draggable: true,
           progress: undefined,
           theme: "light", });
-          navigate('/home');
+          navigate('/home', {state : { email }});
         } else {
           toast.error(response.data, {position: "top-right",
           autoClose: 2000,
@@ -75,6 +81,9 @@ function Login() {
           progress: undefined,
           theme: "light",});
         }
+        setEmail('');
+            setName('');
+            setPassword('');
       } catch (error) {
         console.error('Error while logging in:', error);
       }
@@ -86,11 +95,16 @@ function Login() {
     e.preventDefault();
 
         // Reset previous error messages
+        setNameError('');
         setEmailError('');
         setPasswordError('');
-    setConfirmPasswordError('');
+        setConfirmPasswordError('');
 
         // Validate email and password
+        if (!name) {
+          setNameError('Name is required');
+          return;
+      }
         if (!email) {
             setEmailError('Email is required');
             return;
@@ -114,6 +128,7 @@ function Login() {
     try {
         //Simulate a backend API call
       const response = await axios.post('http://localhost:9090/register', {
+        name: name,
         email: email,
         password: password,
       });
@@ -127,8 +142,11 @@ function Login() {
             draggable: true,
             progress: undefined,
             theme: "light",});
+            setEmail('');
+            setName('');
+            setPassword('');
             setIsRegistering(false);
-        //navigate('/');
+            
       } else {
         toast.error(" ERROR ", { position: "top-right",
         autoClose: 2000,
@@ -168,6 +186,17 @@ function Login() {
                   </h6>
                   <form onSubmit={handleRegister} className='form-container'>
                     {/* Registration Form */}
+                    <div className='form-group'>
+                      <input
+                        className='name'
+                        placeholder='Enter your Full Name'
+                        type='name'
+                        id='name'
+                        value={name}
+                        onChange={handleNameChange}
+                    />
+                    {nameError && <div className='error'>{nameError}</div>}
+                </div>
                     <div className='form-group'>
                       <input
                         className='email'
